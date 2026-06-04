@@ -1,0 +1,83 @@
+// schema.prisma
+// Created for Golden Roastery (رستری طلایی آروما)
+// Prisma Schema with complete modeling for Products, Categories, and indexing patterns supporting barista & equipment filtration.
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// دسته بندی محصولات (مثلا دانه‌ها، وسایل دم‌آوری)
+model Category {
+  id          String    @id @default(uuid())
+  nameEn      String    @unique
+  nameFa      String    @unique
+  slug        String    @unique
+  products    Product[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+// محصولات رستری طلایی و لوازم تخصصی
+model Product {
+  id                String         @id @default(uuid())
+  nameEn            String
+  nameFa            String
+  priceTomans       Int
+  rating            Float          @default(0.0)
+  imageUrl          String
+  stock             Int            @default(0)
+  descriptionFa     String
+  descriptionEn     String
+  roastingDateFa    String?
+  
+  // روابط با دسته بندی اصلی
+  categoryId        String
+  category          Category       @relation(fields: [categoryId], references: [id])
+  
+  // فیلترهای تخصصی باریستایی قهوه
+  roastLevelEn      RoastLevel?
+  roastLevelFa      String?       // "لایت", "مدیوم", "دارک", etc.
+  
+  originEn          OriginType?
+  originFa          String?       // "تک خاستگاه", "ترکیبی", etc.
+  
+  // فیلترهای تخصصی لوازم جانبی
+  equipmentTypeEn   EquipmentType?
+  equipmentTypeFa   String?       // "کتری", "دم‌آور", "آسیاب", etc.
+  
+  grindTypesFa      String        // جدا شده با نقطه ویرگول (;)
+  
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  // ساخت ایندکس‌های تخصصی برای فیلترینگ با سرعت بالا در بانک داده پستگرس
+  @@index([categoryId])
+  @@index([roastLevelEn])
+  @@index([originEn])
+  @@index([equipmentTypeEn])
+}
+
+enum RoastLevel {
+  LIGHT
+  LIGHT_MEDIUM
+  MEDIUM
+  MEDIUM_DARK
+  DARK
+}
+
+enum OriginType {
+  SINGLE_ORIGIN
+  BLEND
+}
+
+enum EquipmentType {
+  KETTLE
+  BREWER
+  GRINDER
+  FILTER
+}

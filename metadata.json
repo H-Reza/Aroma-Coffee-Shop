@@ -1,0 +1,6 @@
+{
+  "name": "Aroma Coffee",
+  "description": "Premium Specialty Coffee Shop with AI Recommendations and Subscriptions.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
